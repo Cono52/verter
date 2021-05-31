@@ -3,8 +3,11 @@ const zlib = require('zlib');
 const { Readable } = require("stream");
 
 if(process.env['NODE_ENV'] === 'test') {
-    console.log('func subArrays: test...')
+    console.log('function subArrays: test...')
     console.log(subArrays([1,2,3,4,5,6,7,3,4,10,1], [3, 4]).toString() == [2, 7].toString() ? 'Passed': 'Failed');
+
+    console.log('function zip: test...')
+    console.log(zip([1,2], [1,2]).toString() == [[1, 1],[2, 2]].toString() ? 'Passed': 'Failed');
     return 0; 
 }
 
