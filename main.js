@@ -11,21 +11,26 @@ if(process.env['NODE_ENV'] === 'test') {
     return 0; 
 }
 
-inflate = zlib.createInflate();
-
 fs.readFile('test.pdf', (err, data) => {
     const startFlag = Buffer.from('\nstream');
-    const endflag = Buffer.from('\nendstream');
+    const endFlag = Buffer.from('\nendstream');
     const streamIndicies = subArrays(data, startFlag);
-    const endStreamIndicies = subArrays(data, endflag);
+    const endStreamIndicies = subArrays(data, endFlag);
   
     const streamBlocks = zip(streamIndicies, endStreamIndicies);
-    console.log(streamBlocks);
 
-    // const readable = Readable.from(data.slice(index, endIndex));
-    // let writeStream = fs.createWriteStream('new.png');
+    streamBlocks.forEach(([start, end], idx) => {
+        const inflate = zlib.createInflate();
 
-    // readable.pipe(inflate).pipe(writeStream);
+        const adjustedStartFlag = start + startFlag.length + 1; // we don't want to include any part of the 'stream' tag or the \n ending.
+    
+        const adjustedEndFlag = end; // we want to include \n
+
+        const readable = Readable.from(data.slice(adjustedStartFlag, adjustedEndFlag));
+        let writeStream = fs.createWriteStream(`new${idx}.png`);
+
+        readable.pipe(inflate).pipe(writeStream);
+    });
 });
 
 function zip(x, y) {
